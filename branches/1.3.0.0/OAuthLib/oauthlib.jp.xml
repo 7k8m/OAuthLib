@@ -1,0 +1,273 @@
+﻿<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OAuthLib</name>
+    </assembly>
+    <members>
+        <member name="T:OAuthLib.Parameter">
+            <summary>
+            パラメータは名前と値を持ちます。
+            </summary>
+        </member>
+        <member name="M:OAuthLib.Parameter.#ctor(System.String,System.String)">
+            <summary>
+            パラメータのオブジェクトを構築します。
+            </summary>
+            <param name="name">Name of parameter</param>
+            <param name="value">Value of parameter</param>
+        </member>
+        <member name="P:OAuthLib.Parameter.Name">
+            <summary>
+            パラメータの名前です。
+            </summary>
+        </member>
+        <member name="P:OAuthLib.Parameter.Value">
+            <summary>
+            パラメータの値です。
+            </summary>
+        </member>
+        <member name="T:OAuthLib.Consumer">
+             <summary>
+             コンシューマオブジェクトは、OAuthプロトコルに定義されたコンシューマを表します。
+             </summary>
+             <remarks>
+             このオブジェクトの動作は次のとおりです。
+             <list type="number">
+             <item><description>サービスプロバイダから未認可のリクエストトークンを取得します。</description></item>
+             <item><description>認可済みのリクエストトークンに対応したアクセストークンを要求します。</description></item>
+             <item><description>アクセストークンを使い、保護されたリソースに接続します。</description></item>
+             </list>
+             </remarks>
+             <example>
+             <code>
+             using System;
+            using System.Collections.Generic;
+            using System.Text;
+            using System.Diagnostics;
+            using System.Net;
+            
+            using OAuthLib;
+            
+            namespace OAuthDevSupport
+            {
+                class Program
+                {
+                    static void Main(string[] args)
+                    {
+                        try
+                      {
+                            Consumer c =
+                               new Consumer("yourConsumerKey", "yourConsumerSecret");
+            
+                            RequestToken reqToken =
+                                c.ObtainUnauthorizedRequestToken("http://twitter.com/oauth/request_token", "http://twitter.com/");
+            
+                            Process.Start(
+                                Consumer.BuildUserAuthorizationURL(
+                                    "http://twitter.com/oauth/authorize",
+                                    reqToken
+                                )
+                            );
+            
+                            Console.Out.WriteLine("Input verifier");
+                            String verifier = Console.In.ReadLine();
+                            verifier = verifier.TrimEnd('\r', '\n');
+                            AccessToken accessToken =
+                               c.RequestAccessToken(verifier, reqToken, "http://twitter.com/oauth/access_token", "http://twitter.com/");
+            
+                            HttpWebResponse resp =
+                                c.AccessProtectedResource(
+                                    accessToken,
+                                    "http://twitter.com/statuses/home_timeline.xml",
+                                    "GET",
+                                    "http://twitter.com/",
+                                        new Parameter[]{ 
+                                        new Parameter("since_id","your since id") 
+                                    }
+                                    );
+            
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
+                }
+            }
+             </code>
+             </example>
+        </member>
+        <member name="M:OAuthLib.Consumer.#ctor(System.String,System.String)">
+            <summary>
+            新しいコンシューマのインスタンスを構築します。
+            </summary>
+            <param name="consumerKey">コンシューマのキーです。</param>
+            <param name="consumerSecret">コンシューマのシークレットです。</param>
+        </member>
+        <member name="M:OAuthLib.Consumer.ObtainUnauthorizedRequestToken(System.String,System.String)">
+            <summary>
+            サービスプロバイダから、未認可のリクエストトークンを取得します。
+            </summary>
+            <param name="requestTokenUrl">リクエストトークンURLです。</param>
+            <param name="realm">リクエストトークンを取得するときのRealmです。</param>
+            <returns>取得したリクエストトークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.ObtainUnauthorizedRequestToken(System.String,System.String,OAuthLib.Parameter[]@)">
+            <summary>
+            サービスプロバイダから、未認可のリクエストトークンを取得します。
+            </summary>
+            <param name="requestTokenUrl">リクエストトークンURLです。</param>
+            <param name="realm">リクエストトークンを取得するときのRealmです。</param>
+            <param name="responseParameters" >応答に含まれるパラメータです。</param>
+            <returns>取得したリクエストトークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.ObtainUnauthorizedRequestToken(System.String,System.String,System.String)">
+            <summary>
+            サービスプロバイダから、未認可のリクエストトークンを取得します。
+            </summary>
+            <param name="requestTokenUrl">リクエストトークンURLです。</param>
+            <param name="callbackURL">認可が完了したとき、サービスプロバイダがリダイレクトする先の絶対URLです。</param>
+            <param name="realm">リクエストトークンを取得するときのRealmです。</param>
+            <returns>取得したリクエストトークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.ObtainUnauthorizedRequestToken(System.String,System.String,System.String,OAuthLib.Parameter[],OAuthLib.Parameter[]@)">
+            <summary>
+            Oサービスプロバイダから、未認可のリクエストトークンを取得します。
+            </summary>
+            <param name="requestTokenUrl">リクエストトークンURLです。</param>
+            <param name="callbackURL">認可が完了したとき、サービスプロバイダがリダイレクトする先の絶対URLです。</param>
+            <param name="realm">リクエストトークンを取得するときのRealmです。</param>
+            <param name="additionalParameters">Authorizationヘッダに付加するパラメータです。</param>
+            <param name="responseParameters" >応答に含まれるパラメータです。</param>
+            <returns>取得したリクエストトークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.RequestAccessToken(System.String,OAuthLib.RequestToken,System.String,System.String)">
+            <summary>
+            認可済リクエストトークンに対応するアクセストークンを要求します。
+            </summary>
+            <param name="verifier">認可済リクエストトークンの暗証番号(verifier)です。</param>
+            <param name="requestToken">認可済リクエストトークンです。</param>
+            <param name="accessTokenUrl">アクセストークンURLです。</param>
+            <param name="realm">アクセストークンを要求するときのRealmです。</param>
+            <returns>対応するアクセストークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.RequestAccessToken(System.String,OAuthLib.RequestToken,System.String,System.String,OAuthLib.Parameter[]@)">
+            <summary>
+            認可済リクエストトークンに対応するアクセストークンを要求します。
+            </summary>
+            <param name="verifier">認可済リクエストトークンの暗証番号(verifier)です。</param>
+            <param name="requestToken">認可済リクエストトークンです。</param>
+            <param name="accessTokenUrl">アクセストークンURLです。</param>
+            <param name="realm">アクセストークンを要求するときのRealmです。</param>
+            <param name="responseParameters" >応答に含まれるパラメータです。</param>       
+            <returns>対応するアクセストークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.RequestAccessToken(System.String,OAuthLib.RequestToken,System.String,System.String,OAuthLib.Parameter[],OAuthLib.Parameter[]@)">
+            <summary>
+            認可済リクエストトークンに対応するアクセストークンを要求します。
+            </summary>
+            <param name="verifier">認可済リクエストトークンの暗証番号(verifier)です。</param>
+            <param name="requestToken">認可済リクエストトークンです。</param>
+            <param name="accessTokenUrl">アクセストークンURLです。</param>
+            <param name="realm">アクセストークンを要求するときのRealmです。</param>
+            <param name="additionalParameters">Authorizationヘッダに付加するパラメータです。</param>
+            <param name="responseParameters" >応答に含まれるパラメータです。</param>
+            <returns>対応するアクセストークンを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.AccessProtectedResource(OAuthLib.AccessToken,System.String,System.String,System.String,OAuthLib.Parameter[])">
+            <summary>
+            アクセストークンを使い、保護されたリソースに接続します。
+            </summary>
+            <param name="accessToken">アクセストークンです。</param>
+            <param name="urlString">アクセスする保護されたリソースへのURLです。</param>
+            <param name="method">アクセスを行うHTTP methodです。</param>
+            <param name="authorizationRealm">保護されたリソースに接続するときのrealmです。</param>
+            <param name="queryParameters">送信する問い合わせパラメータです。</param>
+            <returns>保護されたリソースから応答されたHttpWebResponseを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.AccessProtectedResource(OAuthLib.AccessToken,System.String,System.String,System.String,OAuthLib.Parameter[],OAuthLib.Parameter[])">
+            <summary>
+            アクセストークンを使い、保護されたリソースに接続します。
+            </summary>
+            <param name="accessToken">アクセストークンです。</param>
+            <param name="urlString">アクセスする保護されたリソースへのURLです。</param>
+            <param name="method">アクセスを行うHTTP methodです。</param>
+            <param name="authorizationRealm">保護されたリソースに接続するときのrealmです。</param>
+            <param name="queryParameters">送信する問い合わせパラメータです。</param>
+            <param name="additionalParameters">Authorizationヘッダに付加するパラメータです。</param>
+            <returns>保護されたリソースから応答されたHttpWebResponseを返します。</returns>
+        </member>
+        <member name="M:OAuthLib.Consumer.BuildUserAuthorizationURL(System.String,OAuthLib.RequestToken)">
+            <summary>
+            リクエストトークンを認可するユーザ認可URLを構築します。
+            </summary>
+            <param name="userAuthorizationUrl">サービスプロバイダが提供するユーザ認可URLです。</param>
+            <param name="requestToken">リクエストトークンです。</param>
+            <returns>リクエストトークンを認可するユーザ認可URLです。</returns>
+        </member>
+        <member name="P:OAuthLib.Consumer.Proxy">
+            <summary>
+            サービスプロバイダと通信するときに使うHTTPプロクシです。
+            </summary>
+        </member>
+        <member name="T:OAuthLib.IToken">
+            <summary>
+            トークンのインターフェイスです。
+            </summary>
+        </member>
+        <member name="P:OAuthLib.IToken.TokenValue">
+            <summary>
+            トークンの値です。
+            </summary>
+        </member>
+        <member name="P:OAuthLib.IToken.TokenSecret">
+            <summary>
+            トークンのシークレットです。
+            </summary>
+        </member>
+        <member name="T:OAuthLib.RequestToken">
+            <summary>
+            リクエストトークンをあらわします。
+            </summary>
+        </member>
+        <member name="M:OAuthLib.RequestToken.#ctor(System.String,System.String)">
+            <summary>
+            リクエストトークンを構築します。
+            </summary>
+            <param name="tokenValue">リクエストトークンの値です。</param>
+            <param name="tokenSecret">リクエストトークンのシークレットです。</param>
+        </member>
+        <member name="P:OAuthLib.RequestToken.TokenValue">
+            <summary>
+            リクエストトークンの値です。
+            </summary>
+        </member>
+        <member name="P:OAuthLib.RequestToken.TokenSecret">
+            <summary>
+            リクエストトークンのシークレットです。
+            </summary>
+        </member>
+        <member name="T:OAuthLib.AccessToken">
+            <summary>
+            アクセストークンをあらわします。
+            </summary>
+        </member>
+        <member name="M:OAuthLib.AccessToken.#ctor(System.String,System.String)">
+            <summary>
+            アクセストークンを構築します。
+            </summary>
+            <param name="tokenValue">アクセストークンの値です。</param>
+            <param name="tokenSecret">アクセストークンのシークレットです。</param>
+        </member>
+        <member name="P:OAuthLib.AccessToken.TokenValue">
+            <summary>
+            アクセストークンの値です。
+            </summary>
+        </member>
+        <member name="P:OAuthLib.AccessToken.TokenSecret">
+            <summary>
+            アクセストークンのシークレットです。
+            </summary>
+        </member>
+    </members>
+</doc>
